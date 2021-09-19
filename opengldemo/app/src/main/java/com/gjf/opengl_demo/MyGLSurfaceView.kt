@@ -13,7 +13,8 @@ import kotlin.concurrent.thread
 class MyGLSurfaceView(context: Context) : GLSurfaceView(context) {
     private val TOUCH_SCALE_FACTOR: Float = 180.0f / 320f
     private val renderer: MyGLRenderer
-    private lateinit var socket: Socket
+//    private lateinit var socket: Socket
+    private lateinit var taskQueue: TaskQueue
     init {
         // Create an OpenGL ES 2.0 context
         setEGLContextClientVersion(2)
@@ -23,9 +24,12 @@ class MyGLSurfaceView(context: Context) : GLSurfaceView(context) {
         setRenderer(renderer)
         renderMode = GLSurfaceView.RENDERMODE_WHEN_DIRTY
 
-        thread {
-            socket = Socket("10.195.204.219", 11000)
-        }
+//        thread {
+//            socket = Socket("10.195.204.219", 11000)
+//        }
+
+        taskQueue = TaskQueue()
+        taskQueue.start()
     }
 
 
@@ -67,11 +71,12 @@ class MyGLSurfaceView(context: Context) : GLSurfaceView(context) {
 
                 renderer.angle += (dx + dy) * TOUCH_SCALE_FACTOR
                 Log.e("1", renderer.angle.toString())
-                thread {
-                    var input = socket.getInputStream()
-                    var output = socket.getOutputStream()
-                    handleMessage(input, output, renderer.angle.toString())
-                }
+//                thread {
+//                    var input = socket.getInputStream()
+//                    var output = socket.getOutputStream()
+//                    handleMessage(input, output, renderer.angle.toString())
+//                }
+                taskQueue.addTask(renderer.angle)
                 requestRender()
             }
         }
